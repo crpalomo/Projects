@@ -12,6 +12,6 @@ A wide range of data science projects invovling various porcedures such as:
 4. Exploratory Data Analysis (EDA)
 
 ## Contact
--Email: crpalomo@outlook.com
--GitHub: [Portfolio](https://crpalomo.github.io/Portfolio/)
--LinkIn: [crpalomo](https://www.linkedin.com/in/crpalomo/)
+- Email: crpalomo@outlook.com
+- GitHub: [Portfolio](https://crpalomo.github.io/Portfolio/)
+- LinkIn: [crpalomo](https://www.linkedin.com/in/crpalomo/)
