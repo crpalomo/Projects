@@ -1,0 +1,122 @@
+---
+title: "Airplane Crash Data"
+author: "Carlos Palomo"
+output:
+  html_document:
+    df_print: paged
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, echo=FALSE, include=FALSE}
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(lubridate)
+library(MASS)
+library(ggpubr)
+library(car)
+acrash_data <- read.csv('Airplane_Crashes_and_Fatalities_Since_1908.csv')
+clean_data <- subset(acrash_data, select = c('Date', 'Location',"Operator","Route","Type", "Aboard","Fatalities"))
+noncomm_1 <- c("Military - U.S. Army","Military - U.S. Navy","Military - German Navy","Military - German Army","Military - Royal Australian Air Force","Military - Royal Airship Works","Military - U.S. Army Air Service","Military - French Navy","Maddux Airlines / Military - U.S.Army Air Force","Military - British Air Ministry","Military - U.S. Navy / Military - U.S. Navy","Military - Colombian Army","Military - Ecuadorian Air Force","Military -Royal Air Force","Military - Royal Air Force","Military - U.S. Army Air Force","Military - U.S. Army Air Forces","American Airlines / Military - USAF","Military - U.S. Air Force","Military - Royal Canadian Air Force","Military - Indian Air Force","Military - U.S. Army Air Forces / Military - U.S. Army Air Forces","Military - Royal Netherlands East Indies Air Force","Military - U.S. Army Air Corps","Military - United States Army Air Force","Military - Royal Indian Air Force","Military - South African Air Force","Eastern Air Lines / Military - U.S. Army Air Corps","Military - Chinese Air Force","Mililtary - Royal Canadian Air Force","Military - Royal British Navy","Military U.S. Navy / Military - U.S. Navy","Military -  (2) U.S. Army Air Forces","Military - Royal Netherlands Naval Air Service","Military - U.S. Marine Corps","Military - Mexican Air Force","Military - Corrieri Aerei Militari","Military - Brazilian Air Force","British European Airways / Military - Soviet Air Force","British European Airways / Military - British","Eastern Air Lines / Military - USN","Eastern Air Lines / Military - Bolivian Air Force","Military - Bolivian Air Force","Military - Portuguese Air Force","Military - Pakistan Air Force","Cubana de Aviacion / Military -  US Navy","Military - U. S. Air Force","Military - Guatemalan Air Force","Military - U.S. Air Force / U.S. Air Force","Military - Egyptian Air Force","Military - U. S. Navy","Military - U.S. Air Force / Military - U.S. Air Force","Military - US Air Force","Military - Royal Thai Air Force","Military - Philippine Air Force","Military - U.S.  Air Force / Military - U.S. Navy","Military - U.S. Marine Corps/Military - U.S. Marine Corps","Military - U.S. Air Force/Military - U.S. Air Force","United Air Lines / Military - U.S. Air Force","Capital Airlines / Military - Air National Guard","REAL / Military - U.S. Navy","Military - Royal Belgian Air Force","Military - French Naval Aviation","Military - Argentine Air Force","Military - Força Aérea Portuguesa","Military - Belgian Air Force","Military - French Air Force","Military - Colombian Air Force","Military - Union of Burma Air Force","Military - Japan Maritime Self Defense Force","Middle East Airlines / Military - Turkish Air ForceC-47","Military - Japan Air Self Defense Force","Military - Chilean Air Force","Military - U.S. Air Force / Military -  U.S. Air Force","Military - Soviet Air Force","Military - Vietnamese Air Force","Military - U.S. Army / Military - U.S. Army","Military - Chilian Air Force","Military - Republiof South Korea Air Force","Military - Imperial Iranian Air Force","Mililtary - U.S. Navy","Military - Russian Air Force","Military Soviet  Air Force - Aeroflot","Military - U.S. Air Force / Military -  U.S. Army","Military - Turkish Air Force","Military - Royal Lao Air Force","Military U.S. Navy","Military - Royal HelleniAir Force","Military - Italian Air Force","Military - Forces Militaires Françaises","Military - United States Navy","Military - Vietnamese Air Force / Military - U.S. Army","Hughes Airwest  / Military - US Marine Air Corps","Military - Royal Norwegian Air Force","Military - Royal Nepalese Air Force","Military - Polish Air Force","Military - U.S. Navy / NASA","Military - West German Air Force","Military - Canadian Air Force","Military - Zairean Air Force","Military - Argentine Navy","Military - Deutsche Luftwaffe","Military - Nicaraguan Air Force","Military - Israel  Air Force","Military - Burma Air Force","Military - Spanish Air Force","Military - Venezuelan Air Force","Military - Israel Air Force","Military - Angolan Air Force")
+
+
+noncomm_2 <- c("Military - Honduran Air Force","Military - Uruguayan Air Force","Military - Finish Air Force","Military - Mauritanian Air Force","Military - Kuwait Air Force","Military - Force Aérienne Zaïroise","Military - Royal Saudi Air Force","Military - Soviet Navy","Military - Ecuadorean Air Force","Aeroflot / Military - Russian Air Force","Aeroflot /Military - Russian","Military - Iranian Air Force","Military - Ethiopian Air Force","Military - Republiof China Air Force","Military - Royal Jordanian Air Force","Military - Salvadoran Air Force","Mililtary - Soviet Air Force","Military - Indonesian Air Force","Military - Mozambique Air Force","Military - El Salvador Air Force","Military - Armée de l'Air Malgache","Military - Zimbabwe Air Force","Military - Chilian Navy","Military - Afghan Republican Air Force","Military - Spanish Air Force.","Military - Peruvian Air Force","Military - Peruvian Naval Aviation","Military - Cuban Air Force","Military - Russian Air Force / Military - Russian Air Force","Military - Canadian Army","Military - Royal Lesotho Defence Force","Military - People's Army/ Military - Peoples Air Force","Military - Venezuelan Navy","Military - Congolese Air Force","Military - Zambian Air Force","Military - Luftwaffe","Military - HelleniAir Force","Military - U.S. Navy / Military -  U.S. Navy","Military - Azerbaijan Air Force","Military - Força Aérea Brasileira","Military - Kenyan Air Force","Military - Sri Lanka Air Force","Military - Unified Yemen Air Force","Military - Salvadorian Air Force","Military - Peruvian Air Force - TANS","Military - Federal Nigerian Air Force","Libya Arab Airlines / Military -  Libya Air Force","Iran Air Tours  /  Military - Iranian Air Force","Military - Georgian Air Force","Military - U.S. Air Force / Military U.S. Air Force","Military - U.S. Army / Military U.S. Army","Military - Dostum-Galboddin Militia","Military - Madagascar Air Force","Military - Nigerian Air Force","Military - Taliban Militia","Military - Sudanese Air Force","Military - Peruvian Army Aviation","Military - Australian Army Aviation","Military - Israel Air Force /Military -  Israel Air Force","Military - Niger Air Force","Military - Luftwaffe / Military - USAF","Military - Greek Air Force","Military - Sudan Air Force","Military - Lao People's Liberation Army Air Force","Military - Tentara Nasional Indonesia Navy","Military - German Air National Guard","Military - Malaysian Air Force","Military - Venezuelan Army","Military - People's Liberation Army","Military - Centrafricain Airlines","Military - IslamiRepubliof Iran Air Force","	Military - Ejército del Aire","Military - Japanese Air Self-Defence Force","Military - Fuerza Aérea de Chile","Military - Fuerza Aérea Colombiana","Military - Florida Army National Guard","Military - Russian, cargo","Military - Angolan  Air Force","Military - Russian Navy","Military - Angolan Armed Forces","Military - Ukraine Air Force","Military - Indian Navy","Military - IslamiRevolution's Guards Corps","Military - Algerian Air Force","Military - Government of Macedonia","Military - United States Marine Corps","Military - United States Air Force","Military - Greek Army","Military - Colombian government","Military - U.S. Marines","Military - Fuerza Del Peru","Military - Zambia Air Force","Military - Iranian Revolutionary Guard Corps Air Force","Military - Slovak Air Force","Military - Fuerza A√©rea Argentina","Military - Kenya Air Force","Military - Lybian Arab Air Force","Military - Chadian Air Force","Military - Russian Army","Military - Russian Air Force/Uzbekistan Airways","Military - US Army","Military - Russian","Military - Macedonian Air Force","Military - Government of Equatorial Guinea","Military - Servicio Aereo Nacional","Military - Thai Army","US Aerial Mail Service","Air Ambulance - Med-Trans Corp.","Procuradoria General de la Republica","Venezuelian Government","Med Flight Air Ambulance - Private","Indonesian National Police","U.S. Government (leased)","United Nations Organization","Uruguayan Air Force - TAMU")
+
+noncomm_3 <- c("Procurator Generale de la Republica","Spanish Air Force","Miltiary - U.S. Airforce","CAAC Air TraffiManagement Bureau")
+
+clean_data$non_com <- ifelse(is.element(clean_data$Operator, noncomm_1),'True',
+                             ifelse(is.element(clean_data$Operator, noncomm_2),'True',
+                        ifelse(is.element(clean_data$Operator, noncomm_3),'True','False')))
+
+split_data <- split(clean_data,clean_data$non_com)
+commerical_crash <- split_data$False
+noncommerical_crash <- split_data$True
+
+commerical_crash <- commerical_crash %>% mutate(Date = as.Date(Date, format = "%m/%d/%Y"))
+commerical_crash <- commerical_crash %>% mutate(year = year(Date))
+commerical_crash <- commerical_crash %>% drop_na(Aboard, Fatalities, Date)
+```
+
+### Introduction
+
+  Since the first passenger flight in 1908, air travel has quickly became integrated into our society. Looking at a dataset of aircraft crashes from 1908 to 2009 collected by Socata, this analysis attempts to see if there is any correlation between fatalities and aircraft type, operator, route, location of takeoff, and how many people were aboard during the crash. As well see any other relevant statistics.
+  
+  The first step was to clean the data. The records were include crashes across the world and both commercial and non-commercial accidents. To begin I separated out non-commercial and commercial crashes. Non-commercial crashes include military, governmental, and medical transports. Using boxplots, checked if there was any outliers within the numerical variables, Fatalities and Aboard.
+```{r, echo=FALSE}
+fatalities_bx <- ggplot(data = commerical_crash, aes(x ="" , y =Fatalities))+geom_boxplot(outlier.colour="red")
+aboard_bx <- ggplot(data = commerical_crash, aes(x ="" , y =Aboard))+geom_boxplot(outlier.colour="red")
+fig <- ggarrange(fatalities_bx , aboard_bx,ncol = 2, nrow = 1)
+annotate_figure(fig, top = text_grob("Before Outlier Removal", face="bold"))
+```
+
+  I then to decided to omit any records that was blank or null as the further analysis would have been thrown off due to inconsistency within the amount of observation per variable. Finally I noticed that due to processing constraints I only looked at records that contained the 250 most frequent type of aircraft. Through this cleaning and splitting process the total obsersation dropped from 5268 to 1343.
+
+```{r, echo=FALSE, include=FALSE}
+
+outvals <- boxplot(commerical_crash$Fatalities)$out
+outindex <- which(commerical_crash$Fatalities %in% outvals)
+commerical_crash <- commerical_crash[-c(outindex),]
+
+outvals <- boxplot(commerical_crash$Aboard)$out
+outindex <- which(commerical_crash$Aboard %in% outvals)
+commerical_crash <- commerical_crash[-c(outindex),]
+
+
+commerical_crash$Location[commerical_crash$Location==""] <- NA
+commerical_crash$Route[commerical_crash$Route==""] <- NA
+commerical_crash$Operator[commerical_crash$Operator==""] <- NA
+commerical_crash$Type[commerical_crash$Type==""] <- NA
+commerical_crash<- na.omit(commerical_crash)
+
+aircrafts <- tail(names(sort(table(commerical_crash$Type))), 250)
+operator_index <- which(commerical_crash$Type %in% aircrafts)
+commerical_crash <- commerical_crash[c(operator_index),]
+```
+
+```{r, echo=FALSE}
+str(commerical_crash)
+```
+### Analysis
+
+  To begin I examined the Fatalities and amount of people Aboard again. This time using a bar to view a yearly breakdown. On average the amount fatalities is 11 people, where the average amount of people on board is 14 people. Giving a proportion 78.6% of people death within air craft crashes.
+```{r, echo=FALSE}
+ggplot(data = commerical_crash, aes(x = year, y = Fatalities))+geom_bar(stat="identity", fill="blue")+ggtitle("Amount of Fatalitites from Crash by Year")
+
+ggplot(data = commerical_crash, aes(x = year, y = Aboard))+geom_bar(stat="identity", fill="blue")+ggtitle("Amount of People Aboard Crashed Aircraft by Year")
+```
+#### Categorical Variables
+
+  With the most of the variables being categorical, I preformed a series of Chi-squared test to determine if they are independent of one another. Through the results I found that location of take off and type of aircraft was not independent one another.
+``` {r ,echo=FALSE, warning=FALSE}
+chisq.test(table(commerical_crash$Operator, commerical_crash$Location))
+chisq.test(table(commerical_crash$Operator, commerical_crash$Route))
+chisq.test(table(commerical_crash$Operator, commerical_crash$Type))
+chisq.test(table(commerical_crash$Location, commerical_crash$Route))
+chisq.test(table(commerical_crash$Location, commerical_crash$Type))
+chisq.test(table(commerical_crash$Route, commerical_crash$Type))
+
+```
+  Due to the amount of levels in the categorical variables it is difficult straight forward regression model. To start with I created a simple linear model with only the Operator, Type, and Location. I then tested to to see if any variable should be dropped. From run it appears that we should keep all variables. In order to better understanding I then generated an ANOVA to verify that that each variable is relevant.
+  
+``` {r ,echo=FALSE, warning=FALSE}
+full_model <- lm(Fatalities ~ Operator + Type + Location, data = commerical_crash)
+reduced_model <- step(full_model,direction="backward")
+anova(reduced_model)
+```
+
+  From the summary of the R-squared value is 99.99%. Because this number is nearly perfect it leads to believe that there is any issue with the data and model. This is mostly being caused the amount of levels with each categorical variables. Which leads me to doubt the model.
+
+#### Numerical Variable
+
+  The next thing I did was look closer at the relationship between fatalities and amount of people aboard the aircraft at the time of the crash. Preforming a correlation test I found that it yielded 0.826. This is understandable as the amount on aboard will always act as a limit to the amount fatalities, when not included people who could be killed due to proximity the crash.
+  I then perfomred a linear regression model with just this variable and found that the model had a R-squared value of 68.185 and a coeffiecent of 0.76388.
+``` {r ,echo=FALSE, warning=FALSE}
+af_cor <- cor(commerical_crash$Fatalities, commerical_crash$Aboard)
+aboard_model <- lm(Fatalities ~ Aboard, data = commerical_crash)
+summary(aboard_model)
+```
